@@ -27,16 +27,17 @@ class Bot_inline_btns:
         addtovar = types.InlineKeyboardButton('Добавить товар', callback_data='addtovar')
         changetovar = types.InlineKeyboardButton('Изменить товар', callback_data='changetovar')
         newsletter = types.InlineKeyboardButton('Создать рассылку', callback_data='newsletter')
-        self.__markup.add(export, addtovar, changetovar, newsletter)
+        newsletter1 = types.InlineKeyboardButton('Добавить категорию', callback_data='addcategory')
+        del_category = types.InlineKeyboardButton('Удалить категорию', callback_data='delcategory')
+        self.__markup.add(export, addtovar, changetovar, newsletter, newsletter1, del_category)
         return self.__markup
 
-    def assortiment_btns(self):
-        doublecups = types.InlineKeyboardButton('Double Cups', callback_data='doublecups')
-        sizzurps = types.InlineKeyboardButton('Sizzurps', callback_data='sizzurps')
-        sets = types.InlineKeyboardButton('Sets', callback_data='sets')
-        other = types.InlineKeyboardButton('Other', callback_data='other')
-        self.__markup.add(doublecups, sizzurps, sets, other)
-        return self.__markup
+    def assortiment_btns(self, categories):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        for i in categories:
+            btn = types.InlineKeyboardButton(i[1], callback_data=f'category{i[0]}')
+            markup.add(btn)
+        return markup
 
     def bonus_btns(self):
         take = types.InlineKeyboardButton('Получи 10% от продаж', callback_data='taketenprocents')
@@ -50,6 +51,41 @@ class Bot_inline_btns:
         ozon = types.InlineKeyboardButton('Озон', url='vk.com')
         self.__markup.add(link, vk, avito, ozon)
         return self.__markup
+
+    def add_product_to_shipping_cart(self, product_id):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        btn = types.InlineKeyboardButton('Добавить в корзину', callback_data=f'addtobuy{product_id}')
+        markup.add(btn)
+        return markup
+
+    def pay_shipping_cart(self):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        btn = types.InlineKeyboardButton('Купить', callback_data=f'pay_shipping_cart')
+        markup.add(btn)
+        return markup
+
+    def categories_btns(self, categories):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        for i in categories:
+            btn = types.InlineKeyboardButton(i[1], callback_data=f'category{i[0]}')
+            markup.add(btn)
+        return markup
+
+    def product_btns(self, categories):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        for i in categories:
+            btn = types.InlineKeyboardButton(i[1], callback_data=f'change_product{i[0]}')
+            markup.add(btn)
+        return markup
+
+    def change_peoduct_btns(self):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        btn = types.InlineKeyboardButton('Название', callback_data=f'finally_change_product1')
+        btn1 = types.InlineKeyboardButton("Описание", callback_data=f'finally_change_product2')
+        btn2 = types.InlineKeyboardButton("Фото", callback_data=f'finally_change_product3')
+        btn3 = types.InlineKeyboardButton("Категорию", callback_data=f'finally_change_product3')
+        markup.add(btn, btn1, btn2, btn3)
+        return markup
 
     def faq_btns(self):
         one = types.InlineKeyboardButton('Заказ и оплата', callback_data='order')

@@ -29,9 +29,25 @@ class DB:
             last_name TEXT,
             nick_name TEXT,
             is_admin BOOL,
+            shoping_cart TEXT,
             UNIQUE(user_id)
             )
             ''')
+            self.__cursor.execute('''
+                        CREATE TABLE product(
+                        row_id INTEGER primary key autoincrement not null,
+                        name TEXT,
+                        description TEXT,
+                        photo BLOB,
+                        categori_id TEXT
+                        )
+                        ''')
+            self.__cursor.execute('''
+                                    CREATE TABLE category(
+                                    row_id INTEGER primary key autoincrement not null,
+                                    name TEXT
+                                    )
+                                    ''')
             self.__db.commit()
         else:
             self.__db = sqlite3.connect(self.__db_path, check_same_thread=False)
