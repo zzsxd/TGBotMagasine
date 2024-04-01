@@ -51,7 +51,6 @@ def main():
             bot.send_message(call.message.chat.id, 'Отзывы', reply_markup=buttons.reviews_btns())
         elif call.data == 'faq':
             bot.send_message(call.message.chat.id, 'Ответы на все вопросы', reply_markup=buttons.faq_btns())
-        elif call.data == ''
         # команды админа
         elif call.data == 'export':
             db_actions.db_export_xlsx()
