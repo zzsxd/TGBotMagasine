@@ -66,16 +66,17 @@ class DbAct:
         self.__db.db_write('INSERT INTO product (name, photo, description, categori_id) VALUES (?, ?, ?, ?)', data)
 
     def products_by_id_category(self, categori_id):
-        return self.__db.db_read('SELECT row_id, name, description, photo FROM product WHERE categori_id = ?', (categori_id, ))
+        return self.__db.db_read('SELECT row_id, name, description, photo FROM product WHERE categori_id = ?',
+                                 (categori_id,))
 
     def add_category(self, name):
-        self.__db.db_write('INSERT INTO category (name) VALUES (?)', (name, ))
+        self.__db.db_write('INSERT INTO category (name) VALUES (?)', (name,))
 
     def get_categories(self):
         return self.__db.db_read('SELECT row_id, name FROM category', ())
 
     def del_categories(self, categori_id):
-        self.__db.db_write('DELETE FROM category WHERE categori_id = ?', (categori_id, ))
+        self.__db.db_write('DELETE FROM category WHERE categori_id = ?', (categori_id,))
 
     def get_products_preview(self):
         return self.__db.db_read('SELECT row_id, name FROM product', ())
@@ -84,7 +85,7 @@ class DbAct:
         self.__db.db_write(f'UPDATE product SET "{field}" = ? WHERE row_id = ?', (data, row_id))
 
     def get_product_by_id(self, product_id):
-        return self.__db.db_read('SELECT name FROM product WHERE row_id = ?', (product_id, ))[0]
+        return self.__db.db_read('SELECT name FROM product WHERE row_id = ?', (product_id,))[0]
 
     def get_shipping_cart_by_user_id(self, user_id):
         data = self.__db.db_read('SELECT shoping_cart FROM users WHERE user_id = ?', (user_id,))[0][0]
@@ -92,7 +93,7 @@ class DbAct:
         return json.loads(data)
 
     def update_shipping_cart(self, user_id, product_id):
-        already_in_json = self.__db.db_read('SELECT shoping_cart FROM users WHERE user_id = ?', (user_id, ))[0][0]
+        already_in_json = self.__db.db_read('SELECT shoping_cart FROM users WHERE user_id = ?', (user_id,))[0][0]
         already_in = json.loads(already_in_json)
         if product_id in already_in:
             return False
@@ -102,6 +103,8 @@ class DbAct:
             self.__db.db_write(f'UPDATE users SET shoping_cart = ? WHERE user_id = ?', (new_json, user_id))
             return True
 
+    def read_user(self):
+        return self.__db.db_read('SELECT user_id FROM users', ())
 
     def db_export_xlsx(self):
         d = {'Имя': [], 'Фамилия': [], 'Никнейм': []}

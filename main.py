@@ -29,7 +29,8 @@ def main():
         db_actions.add_user(user_id, message.from_user.first_name, message.from_user.last_name,
                             f'@{message.from_user.username}')
         if command == 'start':
-            bot.send_message(message.chat.id, 'start message',
+            bot.send_message(message.chat.id, 'Wassup и добро пожаловать в Wakcup Shop!\n'
+                                              'Я помогу тебе оформить заказ и ответить на вопросы.',
                              reply_markup=buttons.start_btns(), parse_mode="HTML")
         elif db_actions.user_is_admin(user_id):
             if command == 'admin':
@@ -41,18 +42,17 @@ def main():
         user_id = call.message.chat.id
         buttons = Bot_inline_btns()
         if db_actions.user_is_existed(user_id):
-            print(1)
             code = temp_user_data.temp_data(user_id)[user_id][0]
             if call.data == 'assortiment':
                 temp_user_data.temp_data(user_id)[user_id][0] = 10
                 categories = db_actions.get_categories()
-                bot.send_message(user_id, 'Выберите категорию: ',
+                bot.send_message(user_id, 'Тут ты можешь чекнуть весь наш соус, выбирай категорию и смотри товары! ',
                                  reply_markup=buttons.assortiment_btns(categories))
             elif call.data == 'cart':
                 s = ''
                 shipping_cart = db_actions.get_shipping_cart_by_user_id(user_id)
                 for i in range(len(shipping_cart)):
-                    s += f'{i+1}. {db_actions.get_product_by_id(shipping_cart[i])[0]}\n'
+                    s += f'{i + 1}. {db_actions.get_product_by_id(shipping_cart[i])[0]}\n'
                 bot.send_message(user_id, f'Ваша корзина:\n{s}', reply_markup=buttons.pay_shipping_cart())
             elif call.data == 'bonus':
                 bot.send_message(call.message.chat.id, 'Наши скидки и акции', reply_markup=buttons.bonus_btns())
@@ -88,7 +88,8 @@ def main():
                     temp_user_data.temp_data(user_id)[user_id][0] = None
                     bot.send_message(user_id, 'Категория удалена успешно!')
                 elif call.data[:8] == 'category' and code == 9:
-                    db_actions.update_product('categori_id', call.data[8:], temp_user_data.temp_data(user_id)[user_id][2])
+                    db_actions.update_product('categori_id', call.data[8:],
+                                              temp_user_data.temp_data(user_id)[user_id][2])
                     temp_user_data.temp_data(user_id)[user_id][0] = None
                     bot.send_message(user_id, 'Товар успешно обновлён!')
                 elif call.data == 'delcategory':
@@ -110,7 +111,8 @@ def main():
                         case '4':
                             categories = db_actions.get_categories()
                             temp_user_data.temp_data(user_id)[user_id][0] = 9
-                            bot.send_message(user_id, 'Выберите новую категорию', reply_markup=buttons.categories_btns(categories))
+                            bot.send_message(user_id, 'Выберите новую категорию',
+                                             reply_markup=buttons.categories_btns(categories))
                 elif call.data[:14] == 'change_product':
                     temp_user_data.temp_data(user_id)[user_id][2] = call.data[14:]
                     bot.send_message(user_id, 'Что вы хотите изменить?',
@@ -126,7 +128,8 @@ def main():
                     bot.send_message(user_id, 'Выберите товар',
                                      reply_markup=buttons.product_btns(products))
                 elif call.data == 'newsletter':
-                    pass #рассылка всем пользователям
+                    bot.send_message(user_id, 'Пришлите текст для рассылки!')
+                    temp_user_data.temp_data(user_id)[user_id][0] = 12
 
     @bot.message_handler(content_types=['text', 'photo'])
     def text_message(message):
@@ -159,7 +162,8 @@ def main():
                         temp_user_data.temp_data(user_id)[user_id][1][2] = user_input
                         temp_user_data.temp_data(user_id)[user_id][0] = 3
                         categories = db_actions.get_categories()
-                        bot.send_message(user_id, 'Выберите категорию для товара', reply_markup=buttons.categories_btns(categories))
+                        bot.send_message(user_id, 'Выберите категорию для товара',
+                                         reply_markup=buttons.categories_btns(categories))
                     else:
                         bot.send_message(user_id, 'Это не текст!')
                 case 4:
@@ -178,7 +182,8 @@ def main():
                         bot.send_message(user_id, 'Это не текст!')
                 case 7:
                     if user_input is not None:
-                        db_actions.update_product('description', user_input, temp_user_data.temp_data(user_id)[user_id][2])
+                        db_actions.update_product('description', user_input,
+                                                  temp_user_data.temp_data(user_id)[user_id][2])
                         temp_user_data.temp_data(user_id)[user_id][0] = None
                         bot.send_message(user_id, 'Товар успешно обновлён!')
                     else:
@@ -193,6 +198,17 @@ def main():
                         bot.send_message(user_id, 'Товар успешно обновлён!')
                     else:
                         bot.send_message(user_id, 'Это не фото!')
+                case 12:
+                    if user_input is not None:
+                        userid = db_actions.read_user()
+                        for users in userid:
+                            try:
+                                bot.send_message(users[0], user_input)
+                            except:
+                                bot.send_message(message.chat.id, 'Ошибка!')
+                        bot.send_message(user_id, 'Рассылка успешно отправлена!')
+                    else:
+                        bot.send_message(message.chat.id, 'Это не текст!')
 
     bot.polling(none_stop=True)
 
@@ -206,4 +222,3 @@ if '__main__' == __name__:
     db_actions = DbAct(db, config, config.get_config()['xlsx_path'])
     bot = telebot.TeleBot(config.get_config()['tg_api'])
     main()
-
