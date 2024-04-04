@@ -45,10 +45,10 @@ class Bot_inline_btns:
         return self.__markup
 
     def reviews_btns(self):
-        link = types.InlineKeyboardButton('Отзывы', url='vk.com')
-        vk = types.InlineKeyboardButton('Отзывы ВК', url='vk.com')
-        avito = types.InlineKeyboardButton('Отзывы Авито', url='vk.com')
-        ozon = types.InlineKeyboardButton('Озон', url='vk.com')
+        link = types.InlineKeyboardButton('Телеграм', url='https://t.me/wakfeedback')
+        vk = types.InlineKeyboardButton('ВКонтакте', url='https://vk.com/topic-216187442_50186481')
+        avito = types.InlineKeyboardButton('Авито', url='https://www.avito.ru/moskva/posuda_i_tovary_dlya_kuhni/double_cup_bape_3459771605')
+        ozon = types.InlineKeyboardButton('Озон', url='https://www.ozon.ru/seller/wakcup-1529348/products/?miniapp=seller_1529348')
         self.__markup.add(link, vk, avito, ozon)
         return self.__markup
 
