@@ -98,4 +98,8 @@ class Bot_inline_btns:
         seven = types.InlineKeyboardButton('Заказ не отправлен больше недели', callback_data='notdelivery')
         self.__markup.add(one, two, three, seven, four, five, six)
         return self.__markup
+    def guarantees_btns(self):
+        one = types.InlineKeyboardButton('Посмотреть отзывы', callback_data='reviews')
+        self.__markup.add(one)
+        return self.__markup
 

@@ -128,8 +128,15 @@ def main():
                                                        'Есть еще элементы, которые придают вкус и запах похожий на '
                                                        'оригинальный американский сироп, но эффект не будет сильным, '
                                                        'тк мы не можем сделать легально сильный эффект.')
-            elif call.data == '':
-                pass
+            elif call.data == 'notdelivery':
+                bot.send_message(call.message.chat.id, 'У нас работает правило: если мы не отправляем заказ в течение '
+                                                       'недели, мы дарим тебе сироп, кидаем его в посылку без доплат.\n'
+                                                       'Если ты ждешь больше недели, то обратись к нашему менеджеру '
+                                                       'по кнопке ниже, и мы закинем тебе доп сироп')
+            elif call.data == 'guarantees':
+                bot.send_message(call.message.chat.id, 'Мы работаем уже год, и за это время отправили тысячи посылок'
+                                                       ' и собрали сотни отзывов, можешь их чекнуть!',
+                                 reply_markup=buttons.guarantees_btns())
             elif call.data[:8] == 'category' and code == 10:
                 temp_user_data.temp_data(user_id)[user_id][0] = None
                 products = db_actions.products_by_id_category(call.data[8:])
