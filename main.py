@@ -50,10 +50,13 @@ def main():
                                  reply_markup=buttons.assortiment_btns(categories))
             elif call.data == 'cart':
                 s = ''
+                all_cost = 0
                 shipping_cart = db_actions.get_shipping_cart_by_user_id(user_id)
                 for i in range(len(shipping_cart)):
-                    s += f'{i+1}. {db_actions.get_product_by_id(shipping_cart[i])[0]}\n'
-                bot.send_message(user_id, f'Ваша корзина:\n{s}', reply_markup=buttons.pay_shipping_cart())
+                    product = db_actions.get_product_by_id(shipping_cart[i])
+                    all_cost += int(product[1])
+                    s += f'{i+1}. {product[0]} - {product[1]}\n'
+                bot.send_message(user_id, f'Ваша корзина:\n{s}\n\nобщая цена товаров: {all_cost}', reply_markup=buttons.pay_shipping_cart())
             elif call.data == 'bonus':
                 bot.send_message(call.message.chat.id, 'Наши скидки и акции', reply_markup=buttons.bonus_btns())
             elif call.data == 'pay_shipping_cart':
@@ -111,6 +114,9 @@ def main():
                             categories = db_actions.get_categories()
                             temp_user_data.temp_data(user_id)[user_id][0] = 9
                             bot.send_message(user_id, 'Выберите новую категорию', reply_markup=buttons.categories_btns(categories))
+                        case '5':
+                            temp_user_data.temp_data(user_id)[user_id][0] = 10
+                            bot.send_message(user_id, 'Введите новую цену')
                 elif call.data[:14] == 'change_product':
                     temp_user_data.temp_data(user_id)[user_id][2] = call.data[14:]
                     bot.send_message(user_id, 'Что вы хотите изменить?',
@@ -150,8 +156,8 @@ def main():
                         photo_file = bot.get_file(photo_id)
                         photo_bytes = bot.download_file(photo_file.file_path)
                         temp_user_data.temp_data(user_id)[user_id][1][1] = photo_bytes
-                        temp_user_data.temp_data(user_id)[user_id][0] = 2
-                        bot.send_message(user_id, 'Отправьте описание товара')
+                        temp_user_data.temp_data(user_id)[user_id][0] = 11
+                        bot.send_message(user_id, 'Отправьте цену товара')
                     else:
                         bot.send_message(user_id, 'Это не фото!')
                 case 2:
@@ -193,6 +199,24 @@ def main():
                         bot.send_message(user_id, 'Товар успешно обновлён!')
                     else:
                         bot.send_message(user_id, 'Это не фото!')
+                case 10:
+                    if user_input is not None:
+                        db_actions.update_product('price', user_input,
+                                                  temp_user_data.temp_data(user_id)[user_id][2])
+                        temp_user_data.temp_data(user_id)[user_id][0] = None
+                        bot.send_message(user_id, 'Товар успешно обновлён!')
+                    else:
+                        bot.send_message(user_id, 'Это не текст!')
+                case 11:
+                    if user_input is not None:
+                        try:
+                            temp_user_data.temp_data(user_id)[user_id][1][4] = int(user_input)
+                            temp_user_data.temp_data(user_id)[user_id][0] = 2
+                            bot.send_message(user_id, 'Отправьте описание товара')
+                        except:
+                            bot.send_message(user_id, 'Это не число!')
+                    else:
+                        bot.send_message(user_id, 'Это не текст!')
 
     bot.polling(none_stop=True)
 

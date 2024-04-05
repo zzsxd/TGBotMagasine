@@ -83,8 +83,9 @@ class Bot_inline_btns:
         btn = types.InlineKeyboardButton('Название', callback_data=f'finally_change_product1')
         btn1 = types.InlineKeyboardButton("Описание", callback_data=f'finally_change_product2')
         btn2 = types.InlineKeyboardButton("Фото", callback_data=f'finally_change_product3')
-        btn3 = types.InlineKeyboardButton("Категорию", callback_data=f'finally_change_product3')
-        markup.add(btn, btn1, btn2, btn3)
+        btn3 = types.InlineKeyboardButton("Категорию", callback_data=f'finally_change_product4')
+        btn4 = types.InlineKeyboardButton("Цену", callback_data=f'finally_change_product5')
+        markup.add(btn, btn1, btn2, btn3, btn4)
         return markup
 
     def faq_btns(self):

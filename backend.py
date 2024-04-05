@@ -22,7 +22,7 @@ class TempUserData:
 
     def temp_data(self, user_id):
         if user_id not in self.__user_data.keys():
-            self.__user_data.update({user_id: [None, [None, None, None, None], None]})
+            self.__user_data.update({user_id: [None, [None, None, None, None, None], None]})
         return self.__user_data
 
 
@@ -63,7 +63,7 @@ class DbAct:
             return status
 
     def add_product(self, data):
-        self.__db.db_write('INSERT INTO product (name, photo, description, categori_id) VALUES (?, ?, ?, ?)', data)
+        self.__db.db_write('INSERT INTO product (name, photo, description, categori_id, price) VALUES (?, ?, ?, ?, ?)', data)
 
     def products_by_id_category(self, categori_id):
         return self.__db.db_read('SELECT row_id, name, description, photo FROM product WHERE categori_id = ?', (categori_id, ))
@@ -84,7 +84,7 @@ class DbAct:
         self.__db.db_write(f'UPDATE product SET "{field}" = ? WHERE row_id = ?', (data, row_id))
 
     def get_product_by_id(self, product_id):
-        return self.__db.db_read('SELECT name FROM product WHERE row_id = ?', (product_id, ))[0]
+        return self.__db.db_read('SELECT name, price FROM product WHERE row_id = ?', (product_id, ))[0]
 
     def get_shipping_cart_by_user_id(self, user_id):
         data = self.__db.db_read('SELECT shoping_cart FROM users WHERE user_id = ?', (user_id,))[0][0]
