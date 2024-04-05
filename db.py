@@ -39,6 +39,7 @@ class DB:
                         name TEXT,
                         description TEXT,
                         photo BLOB,
+                        price TEXT,
                         categori_id TEXT
                         )
                         ''')
