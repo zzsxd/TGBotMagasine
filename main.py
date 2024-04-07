@@ -29,8 +29,11 @@ def main():
         db_actions.add_user(user_id, message.from_user.first_name, message.from_user.last_name,
                             f'@{message.from_user.username}')
         if command == 'start':
-            bot.send_message(message.chat.id, 'start message',
-                             reply_markup=buttons.start_btns(), parse_mode="HTML")
+            bot.send_message(message.chat.id, 'Wassup и добро пожаловать в Wakcup Shop!\n'
+                                              'Я помогу тебе оформить заказ и ответить на вопросы.\n\n'
+                                              'Но для начала, тебе необходимо пройти регистрацию!\n\n'
+                                              'Потом по данным которые ты введешь, мы отправим тебе посылку!',
+                             reply_markup=buttons.registration_btns())
         elif db_actions.user_is_admin(user_id):
             if command == 'admin':
                 bot.send_message(message.chat.id, f'{message.from_user.first_name}, вы успешно вошли в Админ-Панель ✅',
@@ -41,7 +44,6 @@ def main():
         user_id = call.message.chat.id
         buttons = Bot_inline_btns()
         if db_actions.user_is_existed(user_id):
-            print(1)
             code = temp_user_data.temp_data(user_id)[user_id][0]
             if call.data == 'assortiment':
                 temp_user_data.temp_data(user_id)[user_id][0] = 10
@@ -62,9 +64,87 @@ def main():
             elif call.data == 'pay_shipping_cart':
                 bot.send_message(call.message.chat.id, 'Кода нет - тимлид уснул')
             elif call.data == 'reviews':
-                bot.send_message(call.message.chat.id, 'Отзывы', reply_markup=buttons.reviews_btns())
+                bot.send_message(call.message.chat.id, 'Мы работаем уже год, и за это время отправили тысячи посылок и собрали сотни отзывов, можешь их чекнуть!\n'
+                                                       'Так же, у нас работает правило: если мы не отправляем заказ в течение недели, мы дарим тебе сироп, кидаем его в посылку без доплат.', reply_markup=buttons.reviews_btns())
             elif call.data == 'faq':
                 bot.send_message(call.message.chat.id, 'Ответы на все вопросы', reply_markup=buttons.faq_btns())
+            elif call.data == 'order':
+                bot.send_message(call.message.chat.id, 'Оформление осуществляется через этот бот, для этого зайди в '
+                                                       '"Ассортимент и цены" -> выбери товары и добавь их в корзину '
+                                                       '-> перейди в корзину, и нажми "Купить", далее нужно указать '
+                                                       'свои данные для получения и провести оплату.\n'
+                                                       'Оплата осуществляется за товар во время оформления, '
+                                                       'а за доставку при получении, примерную стоимость можете '
+                                                       'посмотреть тут ( ссылка )')
+            elif call.data == 'delivery':
+                bot.send_message(call.message.chat.id, 'Доставка осуществляется транспортной компанией СДЭК почти по '
+                                                       'всему миру до пункта выдачи ( выбираете сами, там же ее и '
+                                                       'оплачиваете при получении), получение по паспорту или СДЭК '
+                                                       'id. Есть возможность отправки почтой РФ, если так будет '
+                                                       'выгоднее для покупателя.\n'
+                                                       'Вот примерная стоимость доставки ( все зависит от заказа ) по '
+                                                       'городам:\n'
+                                                       'Москва и МО - 370р. / 1-2 раб. дня\n'
+                                                       'СПБ - 398р. / 2-3 раб. дня\n'
+                                                       'Минск - 485р. / 4-5 раб. дней\n'
+                                                       'Новосибирск - 543р. / 3-5 раб. дней\n'
+                                                       'Екатеринбург - 415р. / 3-4 раб. дня\n'
+                                                       'Астрахань - 429р. / 3-5 раб. дней\n'
+                                                       'Ростов-на-Дону - 389р. / 3-4 раб. дня\n'
+                                                       'Красноярск - 575р. / 5-7раб. дней\n'
+                                                       'Казань - 389р. / 2-3 раб. дня\n'
+                                                       'Нижний Новгород - 389р. / 2-3 раб. дня\n'
+                                                       'Самара - 398р. / 3-4 раб. дня\n'
+                                                       'Краснодар -398р. / 3-4 раб. дня\n'
+                                                       'Пенза - 416р. / 2-3 раб. дня\n'
+                                                       'Иркутск - 655р. / 9-11 раб. дней\n'
+                                                       'Южно-Сахалинск - 719р. / 23-25 раб. дней\n'
+                                                       'Омск - 560р. / 4-6 раб. дней\n'
+                                                       'Ярославль - 389р. / 2-3 раб. дня\n'
+                                                       'Челябинск - 380р. / 3-4 раб. дня\n'
+                                                       'Сыктывкар - 414р. / 3-4 раб. дня\n'
+                                                       'Если вашего города тут нет, но он находится рядом с одним из '
+                                                       'вышеперечисленных, то цена и сроки доставки сильно не '
+                                                       'изменятся, не надо писать по такому поводу менеджеру, '
+                                                       'если только вам совсем принципиально.')
+            elif call.data == 'legal':
+                bot.send_message(call.message.chat.id, 'Да, это абсолютно легально и безопасно, вас никто не примет '
+                                                       'на пункте выдачи. В составе сиропа нет кодеина, прометазина и '
+                                                       'других запрещенных веществ, так что он абсолютно легален, '
+                                                       'эффект создает мелатонин, который успокаивает, '
+                                                       'вызывает сонливость, расслабляет и клонит в сон.\n'
+                                                       'Есть еще элементы, которые придают вкус и запах похожий на '
+                                                       'оригинальный американский сироп, но эффект не будет сильным, '
+                                                       'т.к. мы не можем сделать легально сильный эффект.')
+            elif call.data == 'sirop':
+                bot.send_message(call.message.chat.id, 'Мы производим сироп для разбавления со спрайтом, чтобы '
+                                                       'получился напиток, похожий на лин, но абсолютно легально. '
+                                                       'Чтобы получился готовый напиток, необходимо залить 1/3 или '
+                                                       '1/2 в спрайт 0,5, взболтать, перелить все в дабл кап, '
+                                                       'добавить джолли ранчерс (на свое усмотрение), добавить лед. '
+                                                       'Все, "линчик" готов. В составе сиропа нет кодеина, '
+                                                       'прометазина и других запрещенных веществ, так что он '
+                                                       'абсолютно легален, эффект создает мелатонин, '
+                                                       'который успокаивает, вызывает сонливость, расслабляет и '
+                                                       'клонит в сон.\n'
+                                                       'Есть еще элементы, которые придают вкус и запах похожий на '
+                                                       'оригинальный американский сироп, но эффект не будет сильным, '
+                                                       'тк мы не можем сделать легально сильный эффект.')
+            elif call.data == 'notdelivery':
+                bot.send_message(call.message.chat.id, 'У нас работает правило: если мы не отправляем заказ в течение '
+                                                       'недели, мы дарим тебе сироп, кидаем его в посылку без доплат.\n'
+                                                       'Если ты ждешь больше недели, то обратись к нашему менеджеру '
+                                                       'по кнопке ниже, и мы закинем тебе доп сироп')
+            elif call.data == 'guarantees':
+                bot.send_message(call.message.chat.id, 'Мы работаем уже год, и за это время отправили тысячи посылок'
+                                                       ' и собрали сотни отзывов, можешь их чекнуть!',
+                                 reply_markup=buttons.guarantees_btns())
+            elif call.data == 'taketenprocents':
+                bot.send_message(call.message.chat.id, 'Ты знаешь кентов, которые 100% захотят наш продукт?\n\n'
+                                                       'Приведи их к нам и получишь 10% от его заказа! Для этого твой '
+                                                       'кореш после оформления просто должен кинуть твой ник '
+                                                       'менеджеру, чтобы мы с тобой связались и скинули '
+                                                       'вознаграждение.')
             elif call.data[:8] == 'category' and code == 10:
                 temp_user_data.temp_data(user_id)[user_id][0] = None
                 products = db_actions.products_by_id_category(call.data[8:])
@@ -132,7 +212,8 @@ def main():
                     bot.send_message(user_id, 'Выберите товар',
                                      reply_markup=buttons.product_btns(products))
                 elif call.data == 'newsletter':
-                    pass #рассылка всем пользователям
+                    bot.send_message(user_id, 'Пришлите текст для рассылки!')
+                    temp_user_data.temp_data(user_id)[user_id][0] = 18
 
     @bot.message_handler(content_types=['text', 'photo'])
     def text_message(message):
@@ -142,6 +223,9 @@ def main():
         buttons = Bot_inline_btns()
         if db_actions.user_is_existed(user_id):
             code = temp_user_data.temp_data(user_id)[user_id][0]
+            if message.text == ('Пройти регистрацию!'):
+                bot.send_message(user_id, 'Введите номер телефона')
+                temp_user_data.temp_data(user_id)[user_id][0] = 12
             match code:
                 case 0:
                     if user_input is not None:
@@ -217,6 +301,58 @@ def main():
                             bot.send_message(user_id, 'Это не число!')
                     else:
                         bot.send_message(user_id, 'Это не текст!')
+                case 12:
+                    if user_input is not None:
+                        try:
+                            bot.send_message(user_id, 'Введите имя')
+                            temp_user_data.temp_data(user_id)[user_id][0] = 13
+                        except:
+                            bot.send_message(user_id, 'Это не номер!')
+                case 13:
+                    if user_input is not None:
+                        try:
+                            bot.send_message(user_id, 'Введите фамилию')
+                            temp_user_data.temp_data(user_id)[user_id][0] = 14
+                        except:
+                            bot.send_message(user_id, 'Это не имя')
+                case 14:
+                    if user_input is not None:
+                        try:
+                            bot.send_message(user_id, 'Введите отчество')
+                            temp_user_data.temp_data(user_id)[user_id][0] = 15
+                        except:
+                            bot.send_message(user_id, 'Это не фамилия')
+                case 15:
+                    if user_input is not None:
+                        try:
+                            bot.send_message(user_id, 'Введите город')
+                            temp_user_data.temp_data(user_id)[user_id][0] = 16
+                        except:
+                            bot.send_message(user_id, 'Это не отчество!')
+                case 16:
+                    if user_input is not None:
+                        try:
+                            bot.send_message(user_id, 'Введите адрес сдека')
+                            temp_user_data.temp_data(user_id)[user_id][0] = 17
+                        except:
+                            bot.send_message(user_id, 'Это не город!')
+                case 17:
+                    if user_input is not None:
+                        try:
+                            bot.send_message(user_id, 'Вы прошли регистрацию!', reply_markup=buttons.start_btns())
+                        except:
+                            bot.send_message(user_id, 'Это не город!')
+                case 18:
+                    if user_input is not None:
+                        userid = db_actions.read_user()
+                        for users in userid:
+                            try:
+                                bot.send_message(users[0], user_input)
+                            except:
+                                bot.send_message(message.chat.id, 'Ошибка!')
+                        bot.send_message(user_id, 'Рассылка успешно отправлена!')
+                    else:
+                        bot.send_message(message.chat.id, 'Это не текст!')
 
     bot.polling(none_stop=True)
 

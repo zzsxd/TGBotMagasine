@@ -22,6 +22,12 @@ class Bot_inline_btns:
         self.__markup.add(assortiment, cart, bonus, reviews, faq)
         return self.__markup
 
+    def registration_btns(self):
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        reg = types.KeyboardButton('Пройти регистрацию!')
+        keyboard.add(reg)
+        return keyboard
+
     def admin_btns(self):
         export = types.InlineKeyboardButton('Экспорт БД', callback_data='export')
         addtovar = types.InlineKeyboardButton('Добавить товар', callback_data='addtovar')

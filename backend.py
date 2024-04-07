@@ -102,10 +102,13 @@ class DbAct:
             self.__db.db_write(f'UPDATE users SET shoping_cart = ? WHERE user_id = ?', (new_json, user_id))
             return True
 
+    def read_user(self):
+        return self.__db.db_read('SELECT user_id FROM users', ())
+
 
     def db_export_xlsx(self):
-        d = {'Имя': [], 'Фамилия': [], 'Никнейм': []}
-        users = self.__db.db_read('SELECT first_name, last_name, nick_name FROM users', ())
+        d = {'Имя': [], 'Фамилия': [], 'Отчество': [], 'Никнейм': [], 'Номер телефона': [], 'Город': [], 'Адрес Сдека': [], }
+        users = self.__db.db_read('SELECT first_name, last_name, sur_name, nick_name, phone_number, city, adress FROM users', ())
         if len(users) > 0:
             for user in users:
                 for info in range(len(list(user))):
