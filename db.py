@@ -27,7 +27,11 @@ class DB:
             user_id INTEGER,
             first_name TEXT,
             last_name TEXT,
+            sur_name TEXT,
             nick_name TEXT,
+            city TEXT,
+            adress TEXT,
+            phone_number TEXT,
             is_admin BOOL,
             shoping_cart TEXT,
             UNIQUE(user_id)
