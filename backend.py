@@ -22,7 +22,7 @@ class TempUserData:
 
     def temp_data(self, user_id):
         if user_id not in self.__user_data.keys():
-            self.__user_data.update({user_id: [None, [None, None, None, None, None], None]})
+            self.__user_data.update({user_id: [None, [None, None, None, None, None], None, []]})
         return self.__user_data
 
 
@@ -34,15 +34,15 @@ class DbAct:
         self.__fields = ['Имя', 'Фамилия', 'Никнейм']
         self.__dump_path_xlsx = path_xlsx
 
-    def add_user(self, user_id, first_name, last_name, nick_name):
+    def add_user(self, user_id, user_data, nick_name):
         if not self.user_is_existed(user_id):
             if user_id in self.__config.get_config()['admins']:
                 is_admin = True
             else:
                 is_admin = False
             self.__db.db_write(
-                'INSERT INTO users (user_id, first_name, last_name, nick_name, is_admin, shoping_cart) VALUES (?, ?, ?, ?, ?, ?)',
-                (user_id, first_name, last_name, nick_name, is_admin, json.dumps([])))
+                'INSERT INTO users (user_id, first_name, last_name, sur_name, city, adress, phone_number, nick_name, is_admin, shoping_cart) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                (user_id, user_data[0], user_data[1], user_data[2], user_data[3], user_data[4], user_data[5], nick_name, is_admin, json.dumps([])))
 
     def user_is_existed(self, user_id):
         data = self.__db.db_read('SELECT count(*) FROM users WHERE user_id = ?', (user_id,))
