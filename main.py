@@ -23,6 +23,27 @@ def start_message(user_id):
                      reply_markup=buttons.start_btns())
 
 
+def proccess_redirect(user_id):
+    buttons = Bot_inline_btns()
+    product = db_actions.products_by_id_category(temp_user_data.temp_data(user_id)[user_id][5][1],
+                                                 temp_user_data.temp_data(user_id)[user_id][5][2][temp_user_data.temp_data(user_id)[user_id][5][0]])
+    bot.send_photo(chat_id=user_id, caption=f'{product[0]}\n\n{product[1]}', photo=product[2],
+                   reply_markup=buttons.add_product_to_shipping_cart(temp_user_data.temp_data(user_id)[user_id][5][2][
+                                                                         temp_user_data.temp_data(user_id)[user_id][5][
+                                                                             0]]))
+
+
+def show_product(user_id, direction):
+    if direction == '1':
+        if temp_user_data.temp_data(user_id)[user_id][5][0] + 1 < len(temp_user_data.temp_data(user_id)[user_id][5][2]):
+            temp_user_data.temp_data(user_id)[user_id][5][0] += 1
+            proccess_redirect(user_id)
+    else:
+        if temp_user_data.temp_data(user_id)[user_id][5][0] - 1 >= 0:
+            temp_user_data.temp_data(user_id)[user_id][5][0] -= 1
+            proccess_redirect(user_id)
+
+
 def main():
     @bot.message_handler(commands=['start', 'admin'])
     def start_msg(message):
@@ -40,10 +61,9 @@ def main():
                                      reply_markup=buttons.admin_btns())
         else:
             bot.send_message(user_id, 'Wassup и добро пожаловать в Wakcup Shop!\n'
-                                      'Я помогу тебе оформить заказ и ответить на вопросы.\n\n'
-                                      'Но для начала, тебе необходимо пройти регистрацию!\n\n'
-                                      'Потом по данным которые ты введешь, мы отправим тебе посылку!',
-                             reply_markup=buttons.registration_btns())
+                                      'Я помогу тебе оформить заказ и ответить на вопросы.',
+                                        reply_markup=buttons.startup_btns())
+        db_actions.add_user(user_id)
 
     @bot.callback_query_handler(func=lambda call: True)
     def callback(call):
@@ -59,13 +79,33 @@ def main():
             elif call.data == 'cart':
                 s = ''
                 all_cost = 0
+                counter = 0
                 shipping_cart = db_actions.get_shipping_cart_by_user_id(user_id)
-                for i in range(len(shipping_cart)):
-                    product = db_actions.get_product_by_id(shipping_cart[i])
-                    all_cost += int(product[1])
-                    s += f'{i + 1}. {product[0]} - {product[1]}\n'
+                for i, g in shipping_cart.items():
+                    counter += 1
+                    product = db_actions.get_product_by_id(i)
+                    all_cost += int(product[1] * g)
+                    s += f'{counter}. {product[0]} - {product[1] * g} ({g}X)\n'
                 bot.send_message(user_id, f'Ваша корзина:\n{s}\n\nобщая цена товаров: {all_cost}',
                                  reply_markup=buttons.pay_shipping_cart())
+            elif call.data == 'change_shopping_cart':
+                data = list()
+                shipping_cart = db_actions.get_shipping_cart_by_user_id(user_id)
+                for i in shipping_cart.keys():
+                    name = db_actions.get_product_by_id(i)[0]
+                    data.append([name, i])
+                bot.send_message(user_id, 'Выберите товар в корзине для изменения', reply_markup=buttons.shipping_products_change_btns(data))
+            elif call.data[:18] == 'changeproduct_cart':
+                temp_user_data.temp_data(user_id)[user_id][6] = call.data[18:]
+                bot.send_message(user_id, 'Выберите действие', reply_markup=buttons.shipping_products_delete_btns())
+            elif call.data[:21] == 'delete_shopping_cart':
+                if db_actions.delete_shipping_cart(user_id, temp_user_data.temp_data(user_id)[user_id][6]):
+                    bot.send_message(user_id, 'Действие успешно завершено', reply_markup=buttons.back_to_cart_btns())
+                else:
+                    bot.send_message(user_id, 'Товар отсутствует в вашей корзине!', reply_markup=buttons.back_to_cart_btns())
+            elif call.data[:21] == 'quanity_shopping_cart':
+                temp_user_data.temp_data(user_id)[user_id][0] = 20
+                bot.send_message(user_id, 'Введите новое количество')
             elif call.data == 'bonus':
                 bot.send_message(call.message.chat.id, 'Наши скидки и акции', reply_markup=buttons.bonus_btns())
             elif call.data == 'pay_shipping_cart':
@@ -155,16 +195,22 @@ def main():
                                                        'менеджеру, чтобы мы с тобой связались и скинули '
                                                        'вознаграждение.')
             elif call.data[:8] == 'category' and code == 10:
-                temp_user_data.temp_data(user_id)[user_id][0] = None
-                products = db_actions.products_by_id_category(call.data[8:])
-                for product in products:
-                    bot.send_photo(chat_id=user_id, caption=f'{product[1]}\n\n{product[2]}', photo=product[3],
-                                   reply_markup=buttons.add_product_to_shipping_cart(product[0]))
+                temp_user_data.temp_data(user_id)[user_id][0] = 19
+                temp_user_data.temp_data(user_id)[user_id][5][0] = -1
+                temp_user_data.temp_data(user_id)[user_id][5][1] = call.data[8:]
+                temp_user_data.temp_data(user_id)[user_id][5][2] = db_actions.get_all_product_id()
+                show_product(user_id, '1')
+            elif call.data[:6] == 'switch' and code == 19:
+                show_product(user_id, call.data[6:])
             elif call.data[:8] == 'addtobuy':
-                if db_actions.update_shipping_cart(user_id, call.data[8:]):
-                    bot.answer_callback_query(call.id, "Товар добавлен в корзину", show_alert=True)
+                temp_user_data.temp_data(user_id)[user_id][4] = call.data[8:]
+                if db_actions.check_user_reg(user_id):
+                    if db_actions.update_shipping_cart(user_id, call.data[8:]):
+                        bot.answer_callback_query(call.id, "Товар добавлен в корзину", show_alert=True)
+                    else:
+                        bot.answer_callback_query(call.id, "Товар уже в корзине", show_alert=True)
                 else:
-                    bot.answer_callback_query(call.id, "Товар уже в корзине", show_alert=True)
+                    bot.send_message(user_id, 'Пройти регистрацию!', reply_markup=buttons.registration_btns())
             if db_actions.user_is_admin(user_id):
                 if call.data == 'export':
                     db_actions.db_export_xlsx()
@@ -235,6 +281,11 @@ def main():
         buttons = Bot_inline_btns()
         code = temp_user_data.temp_data(user_id)[user_id][0]
         if db_actions.user_is_existed(user_id):
+            if user_input == 'Начать использование!':
+                start_message(user_id)
+            elif user_input == 'Пройти регистрацию':
+                temp_user_data.temp_data(user_id)[user_id][0] = 12
+                bot.send_message(user_id, 'Введите имя')
             match code:
                 case 0:
                     if user_input is not None:
@@ -312,22 +363,6 @@ def main():
                             bot.send_message(user_id, 'Это не число!')
                     else:
                         bot.send_message(user_id, 'Это не текст!')
-                case 18:
-                    if user_input is not None:
-                        userid = db_actions.read_user()
-                        for users in userid:
-                            try:
-                                bot.send_message(users[0], user_input)
-                            except:
-                                bot.send_message(message.chat.id, 'Ошибка!')
-                        bot.send_message(user_id, 'Рассылка успешно отправлена!')
-                    else:
-                        bot.send_message(message.chat.id, 'Это не текст!')
-        else:
-            if user_input == 'Пройти регистрацию!':
-                temp_user_data.temp_data(user_id)[user_id][0] = 12
-                bot.send_message(user_id, 'Введите имя')
-            match code:
                 case 12:
                     if user_input is not None:
                         try:
@@ -365,11 +400,7 @@ def main():
                         try:
                             temp_user_data.temp_data(user_id)[user_id][3].append(user_input)
                             temp_user_data.temp_data(user_id)[user_id][0] = 17
-                            bot.send_message(user_id, "Нажмите на кнопку, чтобы отправить свой номер телефона.",
-                                             reply_markup=telebot.types.ReplyKeyboardMarkup(resize_keyboard=True,
-                                                                                            one_time_keyboard=True).add(
-                                                 telebot.types.KeyboardButton('Отправить номер телефона',
-                                                                              request_contact=True)))
+                            bot.send_message(user_id, 'Введите номер телефона')
                         except:
                             bot.send_message(user_id, 'Это не город!')
 
@@ -377,10 +408,30 @@ def main():
                     if user_input is not None:
                         temp_user_data.temp_data(user_id)[user_id][3].append(user_input)
                         temp_user_data.temp_data(user_id)[user_id][0] = None
-                        db_actions.add_user(user_id, temp_user_data.temp_data(user_id)[user_id][3], f'@{user_nickname}')
-                        bot.send_message(user_id, 'Вы прошли регистрацию!')
-                        time.sleep(1)
-                        start_message(user_id)
+                        db_actions.post_reg_user(user_id, temp_user_data.temp_data(user_id)[user_id][3], f'@{user_nickname}')
+                        db_actions.update_shipping_cart(user_id, temp_user_data.temp_data(user_id)[user_id][4])
+                        db_actions.update_user_reg(user_id, True)
+                        bot.send_message(user_id, 'Вы прошли регистрацию! Товар успешно добавлен в корзину!')
+                case 18:
+                    if user_input is not None:
+                        userid = db_actions.read_user()
+                        for users in userid:
+                            try:
+                                bot.send_message(users[0], user_input)
+                            except:
+                                bot.send_message(message.chat.id, 'Ошибка!')
+                        bot.send_message(user_id, 'Рассылка успешно отправлена!')
+                    else:
+                        bot.send_message(message.chat.id, 'Это не текст!')
+                case 20:
+                    if user_input is not None:
+                        try:
+                            if db_actions.quanity_shipping_cart(user_id, temp_user_data.temp_data(user_id)[user_id][6], int(user_input)):
+                                bot.send_message(user_id, 'Действие успешно завершено', reply_markup=buttons.back_to_cart_btns())
+                            else:
+                                bot.send_message(user_id, 'Товар отсутствует в вашей корзине!', reply_markup=buttons.back_to_cart_btns())
+                        except:
+                            bot.send_message(user_id, 'Это не число')
 
     bot.polling(none_stop=True)
 

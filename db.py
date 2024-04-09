@@ -34,6 +34,7 @@ class DB:
             phone_number TEXT,
             is_admin BOOL,
             shoping_cart TEXT,
+            registered BOOL,
             UNIQUE(user_id)
             )
             ''')
