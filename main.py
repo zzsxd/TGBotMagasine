@@ -19,7 +19,8 @@ from db import DB
 
 def start_message(user_id):
     buttons = Bot_inline_btns()
-    bot.send_message(user_id, 'hui',
+    bot.send_message(user_id, 'Wassup и добро пожаловать в Wakcup Shop!\n'
+                                    'Я помогу тебе оформить заказ и ответить на вопросы.',
                      reply_markup=buttons.start_btns())
 
 
@@ -39,9 +40,8 @@ def main():
                                      f'{message.from_user.first_name}, вы успешно вошли в Админ-Панель ✅',
                                      reply_markup=buttons.admin_btns())
         else:
-            bot.send_message(user_id, 'Wassup и добро пожаловать в Wakcup Shop!\n'
-                                      'Я помогу тебе оформить заказ и ответить на вопросы.\n\n'
-                                      'Но для начала, тебе необходимо пройти регистрацию!\n\n'
+            bot.send_message(user_id, 'Привет! Я бот для магазина Wakcup!\n'
+                                      'Для начала тебе необходимо пройти регистрацию!\n'
                                       'Потом по данным которые ты введешь, мы отправим тебе посылку!',
                              reply_markup=buttons.registration_btns())
 
@@ -64,7 +64,7 @@ def main():
                     product = db_actions.get_product_by_id(shipping_cart[i])
                     all_cost += int(product[1])
                     s += f'{i + 1}. {product[0]} - {product[1]}\n'
-                bot.send_message(user_id, f'Ваша корзина:\n{s}\n\nобщая цена товаров: {all_cost}',
+                bot.send_message(user_id, f'Ваша корзина:\n{s}\n\nОбщая цена товаров: {all_cost}',
                                  reply_markup=buttons.pay_shipping_cart())
             elif call.data == 'bonus':
                 bot.send_message(call.message.chat.id, 'Наши скидки и акции', reply_markup=buttons.bonus_btns())
