@@ -31,7 +31,7 @@ class DbAct:
         super(DbAct, self).__init__()
         self.__db = db
         self.__config = config
-        self.__fields = ['Имя', 'Фамилия', 'Никнейм']
+        self.__fields = ['Имя', 'Фамилия', 'Отчество', 'Никнейм', 'Номер телефона', 'Город', 'Адрес Сдека']
         self.__dump_path_xlsx = path_xlsx
 
     def add_user(self, user_id, user_data, nick_name):

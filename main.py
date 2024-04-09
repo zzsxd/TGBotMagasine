@@ -230,6 +230,7 @@ def main():
     def text_message(message):
         photo = message.photo
         user_input = message.text
+        user_nickname = message.from_user.username
         user_id = message.chat.id
         buttons = Bot_inline_btns()
         code = temp_user_data.temp_data(user_id)[user_id][0]
@@ -372,17 +373,14 @@ def main():
                         except:
                             bot.send_message(user_id, 'Это не город!')
 
-    @bot.message_handler(content_types=['contact'])
-    def handle_contact(message):
-        user_id = message.chat.id
-        user_nickname = message.from_user.username
-        phone_number = message.contact.phone_number
-        if temp_user_data.temp_data(user_id)[user_id][0] == 17:
-            temp_user_data.temp_data(user_id)[user_id][3].append(phone_number)
-            db_actions.add_user(user_id, temp_user_data.temp_data(user_id)[user_id][3], f'@{user_nickname}')
-            bot.send_message(user_id, 'Вы прошли регистрацию!')
-            time.sleep(1)
-            start_message(user_id)
+                case 17:
+                    if user_input is not None:
+                        temp_user_data.temp_data(user_id)[user_id][3].append(user_input)
+                        temp_user_data.temp_data(user_id)[user_id][0] = None
+                        db_actions.add_user(user_id, temp_user_data.temp_data(user_id)[user_id][3], f'@{user_nickname}')
+                        bot.send_message(user_id, 'Вы прошли регистрацию!')
+                        time.sleep(1)
+                        start_message(user_id)
 
     bot.polling(none_stop=True)
 
