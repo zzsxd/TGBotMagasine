@@ -19,7 +19,8 @@ from db import DB
 
 def start_message(user_id):
     buttons = Bot_inline_btns()
-    bot.send_message(user_id, 'hui',
+    bot.send_message(user_id, 'Wassup и добро пожаловать в Wakcup Shop!\n\n'
+                              'Я помогу тебе оформить заказ и ответить на вопросы.',
                      reply_markup=buttons.start_btns())
 
 
@@ -109,7 +110,14 @@ def main():
             elif call.data == 'bonus':
                 bot.send_message(call.message.chat.id, 'Наши скидки и акции', reply_markup=buttons.bonus_btns())
             elif call.data == 'pay_shipping_cart':
-                bot.send_message(call.message.chat.id, 'Кода нет - тимлид уснул')
+                all_cost = 0
+                counter = 0
+                shipping_cart = db_actions.get_shipping_cart_by_user_id(user_id)
+                for i, g in shipping_cart.items():
+                    counter += 1
+                    product = db_actions.get_product_by_id(i)
+                    all_cost += int(product[1] * g)
+                bot.send_invoice(call.message.chat.id, title=db_actions.get_shipping_cart_by_user_id(user_id), description='Покупка товаров', provider_token=pay, currency='RUB', invoice_payload='123', prices=[types.LabeledPrice('Оплата товара', all_cost)])
             elif call.data == 'reviews':
                 bot.send_message(call.message.chat.id,
                                  'Мы работаем уже год, и за это время отправили тысячи посылок и собрали сотни отзывов, можешь их чекнуть!\n'
@@ -443,5 +451,6 @@ if '__main__' == __name__:
     temp_user_data = TempUserData()
     db = DB(config.get_config()['db_file_name'], Lock())
     db_actions = DbAct(db, config, config.get_config()['xlsx_path'])
+    pay = config.get_config()['buy_api']
     bot = telebot.TeleBot(config.get_config()['tg_api'])
     main()
