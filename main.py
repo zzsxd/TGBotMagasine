@@ -8,6 +8,7 @@ config_name = 'secrets.json'
 
 import os
 import telebot
+from telebot import types
 import platform
 from threading import Lock
 import time
@@ -28,7 +29,7 @@ def proccess_redirect(user_id):
     buttons = Bot_inline_btns()
     product = db_actions.products_by_id_category(temp_user_data.temp_data(user_id)[user_id][5][1],
                                                  temp_user_data.temp_data(user_id)[user_id][5][2][temp_user_data.temp_data(user_id)[user_id][5][0]])
-    bot.send_photo(chat_id=user_id, caption=f'{product[0]}\n\n{product[1]}', photo=product[2],
+    bot.send_photo(chat_id=user_id, caption=f'{product[0]}\n\n{int(product[1])}', photo=product[2],
                    reply_markup=buttons.add_product_to_shipping_cart(temp_user_data.temp_data(user_id)[user_id][5][2][
                                                                          temp_user_data.temp_data(user_id)[user_id][5][
                                                                              0]]))
@@ -85,8 +86,8 @@ def main():
                 for i, g in shipping_cart.items():
                     counter += 1
                     product = db_actions.get_product_by_id(i)
-                    all_cost += int(product[1] * g)
-                    s += f'{counter}. {product[0]} - {product[1] * g} ({g}X)\n'
+                    all_cost += int(product[1]) * int(g)
+                    s += f'{counter}. {product[0]} - {int(product[1]) * int(g)} ({g}X)\n'
                 bot.send_message(user_id, f'Ваша корзина:\n{s}\n\nобщая цена товаров: {all_cost}',
                                  reply_markup=buttons.pay_shipping_cart())
             elif call.data == 'change_shopping_cart':
@@ -116,7 +117,7 @@ def main():
                 for i, g in shipping_cart.items():
                     counter += 1
                     product = db_actions.get_product_by_id(i)
-                    all_cost += int(product[1] * g)
+                    all_cost += int(product[1]) * int(g)
                 bot.send_invoice(call.message.chat.id, title=db_actions.get_shipping_cart_by_user_id(user_id), description='Покупка товаров', provider_token=pay, currency='RUB', invoice_payload='123', prices=[types.LabeledPrice('Оплата товара', all_cost)])
             elif call.data == 'reviews':
                 bot.send_message(call.message.chat.id,
