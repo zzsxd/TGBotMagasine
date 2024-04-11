@@ -114,7 +114,6 @@ class DbAct:
 
     def get_shipping_cart_by_user_id(self, user_id):
         data = self.__db.db_read('SELECT shoping_cart FROM users WHERE user_id = ?', (user_id,))[0][0]
-        print(data)
         return json.loads(data)
 
     def update_shipping_cart(self, user_id, product_id):
@@ -129,7 +128,6 @@ class DbAct:
             return True
 
     def delete_shipping_cart(self, user_id, product_id):
-        print(product_id, 'gay')
         already_in_json = self.__db.db_read('SELECT shoping_cart FROM users WHERE user_id = ?', (user_id, ))[0][0]
         already_in = json.loads(already_in_json)
         if product_id in already_in.keys():
