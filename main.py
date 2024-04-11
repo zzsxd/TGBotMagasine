@@ -11,7 +11,6 @@ import telebot
 from telebot import types
 import platform
 from threading import Lock
-import time
 from config_parser import ConfigParser
 from frontend import Bot_inline_btns
 from backend import TempUserData, DbAct
@@ -88,7 +87,7 @@ def main():
                     product = db_actions.get_product_by_id(i)
                     all_cost += int(product[1]) * int(g)
                     s += f'{counter}. {product[0]} - {int(product[1]) * int(g)} ({g}X)\n'
-                bot.send_message(user_id, f'Ваша корзина:\n{s}\n\nобщая цена товаров: {all_cost}',
+                bot.send_message(user_id, f'Ваша корзина:\n{s}\n\nОбщая цена товаров: {all_cost}',
                                  reply_markup=buttons.pay_shipping_cart())
             elif call.data == 'change_shopping_cart':
                 data = list()
@@ -111,6 +110,7 @@ def main():
             elif call.data == 'bonus':
                 bot.send_message(call.message.chat.id, 'Наши скидки и акции', reply_markup=buttons.bonus_btns())
             elif call.data == 'pay_shipping_cart':
+                s = ''
                 all_cost = 0
                 counter = 0
                 shipping_cart = db_actions.get_shipping_cart_by_user_id(user_id)
@@ -118,7 +118,8 @@ def main():
                     counter += 1
                     product = db_actions.get_product_by_id(i)
                     all_cost += int(product[1]) * int(g)
-                bot.send_invoice(call.message.chat.id, title=db_actions.get_shipping_cart_by_user_id(user_id), description='Покупка товаров', provider_token=pay, currency='RUB', invoice_payload='123', prices=[types.LabeledPrice('Оплата товара', all_cost)])
+                    s += f'{counter}. {product[0]} - {int(product[1]) * int(g)} ({g}X)\n'
+                bot.send_invoice(call.message.chat.id, title='Покупка товаров', description='от бота Wakcup Seller', provider_token='390540012:LIVE:49245', currency='RUB', invoice_payload='123', prices=[types.LabeledPrice('Оплата товара', all_cost * 100)])
             elif call.data == 'reviews':
                 bot.send_message(call.message.chat.id,
                                  'Мы работаем уже год, и за это время отправили тысячи посылок и собрали сотни отзывов, можешь их чекнуть!\n'
@@ -441,6 +442,18 @@ def main():
                                 bot.send_message(user_id, 'Товар отсутствует в вашей корзине!', reply_markup=buttons.back_to_cart_btns())
                         except:
                             bot.send_message(user_id, 'Это не число')
+
+        @bot.shipping_query_handler(func=lambda query: True)
+        def shipping(shipping_query):
+            bot.answer_shipping_query(shipping_query.id, ok=True, shipping_options=[])
+
+        @bot.pre_checkout_query_handler(func=lambda query: True)
+        def checkout(pre_checkout_query):
+            bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
+
+        @bot.message_handler(content_types=['successful_payment'])
+        def got_payment(message):
+            bot.send_message(message.chat.id, "Спасибо за покупку!")
 
     bot.polling(none_stop=True)
 
