@@ -137,3 +137,8 @@ class Bot_inline_btns:
         self.__markup.add(one)
         return self.__markup
 
+    def back_btns(self):
+        back = types.InlineKeyboardButton('Назад', callback_data='faq')
+        self.markup.add(back)
+        return self.__markup
+
