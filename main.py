@@ -28,7 +28,7 @@ def proccess_redirect(user_id):
     buttons = Bot_inline_btns()
     product = db_actions.products_by_id_category(temp_user_data.temp_data(user_id)[user_id][5][1],
                                                  temp_user_data.temp_data(user_id)[user_id][5][2][temp_user_data.temp_data(user_id)[user_id][5][0]])
-    bot.send_photo(chat_id=user_id, caption=f'{product[0]}\n\n{int(product[1])}', photo=product[2],
+    bot.send_photo(chat_id=user_id, caption=f'{product[0]}\n\n{product[1]}', photo=product[2],
                    reply_markup=buttons.add_product_to_shipping_cart(temp_user_data.temp_data(user_id)[user_id][5][2][
                                                                          temp_user_data.temp_data(user_id)[user_id][5][
                                                                              0]]))
@@ -118,8 +118,16 @@ def main():
                     counter += 1
                     product = db_actions.get_product_by_id(i)
                     all_cost += int(product[1]) * int(g)
-                    s += f'{counter}. {product[0]} - {int(product[1]) * int(g)} ({g}X)\n'
-                bot.send_invoice(call.message.chat.id, title='Покупка товаров', description='от бота Wakcup Seller', provider_token='390540012:LIVE:49245', currency='RUB', invoice_payload='123', prices=[types.LabeledPrice('Оплата товара', all_cost * 100)])
+                    s += f'{counter}. {product[0]} - {product[1] * int(g)} ({g}X)\n'
+                bot.send_invoice(
+                    chat_id=user_id,
+                    title='Покупка товаров',
+                    description='от бота Wakcup Seller',
+                    invoice_payload='asdasd',
+                    provider_token=pay,
+                    start_parameter='asdasda',
+                    currency='RUB',
+                    prices=[types.LabeledPrice("Товар", all_cost * 100)])
             elif call.data == 'reviews':
                 bot.send_message(call.message.chat.id,
                                  'Мы работаем уже год, и за это время отправили тысячи посылок и собрали сотни отзывов, можешь их чекнуть!\n'
@@ -131,7 +139,7 @@ def main():
                 bot.send_message(call.message.chat.id, 'Оформление осуществляется через этот бот, для этого зайди в '
                                                        '"Ассортимент и цены" -> выбери товары и добавь их в корзину '
                                                        '-> перейди в корзину, и нажми "Купить", далее нужно указать '
-                                                       'свои данные для получения и провести оплату.\n'
+                                                       'свои данные для получения и пwawdsровести оплату.\n'
                                                        'Оплата осуществляется за товар во время оформления, '
                                                        'а за доставку при получении, примерную стоимость можете '
                                                        'посмотреть тут ( ссылка )')
@@ -454,7 +462,6 @@ def main():
         @bot.message_handler(content_types=['successful_payment'])
         def got_payment(message):
             bot.send_message(message.chat.id, "Спасибо за покупку!")
-
     bot.polling(none_stop=True)
 
 
