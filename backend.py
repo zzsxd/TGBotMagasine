@@ -85,7 +85,7 @@ class DbAct:
         self.__db.db_write('INSERT INTO product (name, photo, description, categori_id, price) VALUES (?, ?, ?, ?, ?)', data)
 
     def products_by_id_category(self, categori_id, product_id):
-        return self.__db.db_read('SELECT name, description, photo FROM product WHERE categori_id = ? AND row_id = ?', (categori_id, product_id))[0]
+        return self.__db.db_read('SELECT name, description, photo, price FROM product WHERE categori_id = ? AND row_id = ?', (categori_id, product_id))
 
     def get_all_product_id(self):
         out = list()
@@ -93,6 +93,15 @@ class DbAct:
         for i in data:
             out.append(i[0])
         return out
+    def get_all_admins(self):
+        out = list()
+        data = self.__db.db_read('SELECT user_id FROM users WHERE is_admin = 1', ())
+        for i in data:
+            out.append(i[0])
+        return out
+
+    def get_reg_fata(self, user_id):
+        return self.__db.db_read('SELECT first_name, last_name, sur_name, city, adress, phone_number FROM users WHERE user_id = ?', (user_id, ))[0]
 
     def add_category(self, name):
         self.__db.db_write('INSERT INTO category (name) VALUES (?)', (name, ))
